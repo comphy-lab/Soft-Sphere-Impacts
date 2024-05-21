@@ -1,2 +1,1 @@
-# ViscoElasticDropImpact_Saumili
- Saumili internship
+# ViscoElasticDropImpact

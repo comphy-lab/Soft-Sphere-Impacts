@@ -47,9 +47,9 @@ int main(int argc, char const *argv[]) {
   // }
 
   MAXlevel = 10;
-  We = 20.0; // We is 1 for 0.22 m/s <1250*0.22^2*0.001/0.06>
-  
-  tmax = 0.50;
+  //We = 20.0; // We is 1 for 0.22 m/s <1250*0.22^2*0.001/0.06>
+  We = atof(argv[1]);
+  tmax = 1.0;
 
   Ohd = 1e-2; // <\mu/sqrt(1250*0.060*0.001)>
   Ohs = 1e-4; //\mu_r * Ohd
@@ -89,7 +89,7 @@ int main(int argc, char const *argv[]) {
 event init(t = 0){
   if(!restore (file = "dump")){
     refine((R2Drop(x,y) < 1.05) && (level < MAXlevel));
-    fraction (f, 1. - R2Drop(x,y));
+    fraction (f, 1. - R2Drop(x,y)); //initialise a drop with radius 1
     foreach () {
       u.x[] = -1.0*f[];
       u.y[] = 0.0;
@@ -114,6 +114,7 @@ event adapt(i++) {
 // Outputs
 // static
 event writingFiles (t = 0, t += tsnap; t <= tmax) {
+   p.nodump = false; // dump pressure to calculate force in post-processing
   dump (file = "dump");
   char nameOut[80];
   sprintf (nameOut, "intermediate/snapshot-%5.4f", t);
@@ -122,7 +123,8 @@ event writingFiles (t = 0, t += tsnap; t <= tmax) {
 
 event logWriting (i++) {
   double ke = 0., Vcm = 0., vol = 0.;
-  foreach (reduction(+:ke), reduction(+:Vcm)){
+  //foreach (reduction(+:ke), reduction(+:Vcm)){   ///  Error: non-local variable 'vol' is modified by this foreach loop:
+  foreach (reduction(+:ke), reduction(+:Vcm), reduction(+:vol) ){
     ke += 2*pi*y*(0.5*rho(f[])*(sq(u.x[]) + sq(u.y[])))*sq(Delta);
     Vcm += 2*pi*y*((f[])*(u.x[]))*sq(Delta);
     vol += 2*pi*y*(f[])*sq(Delta);
@@ -133,7 +135,7 @@ event logWriting (i++) {
 
   if (pid() == 0){
     if (i == 0) {
-      fprintf (ferr, "i dt t ke p\n");
+      fprintf (ferr, "i dt t ke Vcm\n");
       fp = fopen ("log", "w");
       fprintf(fp, "Level %d tmax %g. We %g, Ohd %3.2e, Ohs %3.2e, Ec %g, De %g, Lo %g\n", MAXlevel, tmax, We, Ohd, Ohs, Ec, De, Ldomain);
       fprintf (fp, "i dt t ke Vcm\n");

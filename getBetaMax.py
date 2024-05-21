@@ -6,10 +6,12 @@ import numpy as np
 import os
 import sys
 
-nGFS = 5000
+nGFS = 100
 
-ci = int(sys.argv[1])
-name = "%d_getEnergy.dat" % ci
+We = int(sys.argv[1])
+#ci = int(sys.argv[1])
+#name = "%d_getForce.dat" % ci
+name = "%d_We_pforce.dat" % We
 
 if os.path.exists(name):
     print("File %s found! New data will be appended to the file" % name)
@@ -19,6 +21,6 @@ for ti in range(nGFS):
     if not os.path.exists(place):
         print("File %s not found!" % place)
     else:
-        exe = "./getEnergyAxi %s %s %s %s %s %s %s" % (place, name)
+        exe = "./getBetaMax %s %s" % (place, name)
         os.system(exe)
     print(("Done %d of %d" % (ti, nGFS)))
