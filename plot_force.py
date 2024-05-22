@@ -5,7 +5,7 @@ import os
 import sys
 
 We = int(sys.argv[1]) #take in We as argument
-filename = "%d_We_pForce.dat" % We
+filename = "%d_We_pforce.dat" % We
 df = pd.read_csv(filename, delimiter=' ') #read file
 
 pforce = np.array(df['pforce'])
