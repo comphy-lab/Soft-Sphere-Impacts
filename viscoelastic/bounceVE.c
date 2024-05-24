@@ -56,7 +56,7 @@ int main(int argc, char const *argv[]) {
   
   Ldomain = 4.0; // size of domain. must keep Ldomain \gg 1
 
-  Ec = 0.0; De = 0.0; // VE part
+  Ec = atof(argv[2]); De = atof(argv[3]); // VE part
   
   fprintf(ferr, "Level %d tmax %g. We %g, Ohd %3.2e, Ohs %3.2e, Ec %g, De %g, Lo %g\n", MAXlevel, tmax, We, Ohd, Ohs, Ec, De, Ldomain);
 
