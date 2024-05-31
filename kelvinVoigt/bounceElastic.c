@@ -4,6 +4,7 @@
  * vatsalsanjay.com
  * Physics of Fluids
  * @date 2023-05-30
+ * This code is for infinite Deborah numbers!
  * 
 */
 
@@ -13,7 +14,7 @@
 #define FILTERED
 #include "two-phase.h"
 #include "navier-stokes/conserving.h"
-#include "log-conform-ViscoElastic_v6.h" // VE part
+#include "log-conform-Elastic.h" // VE part
 #include "tension.h"
 
 // error tolerances
@@ -38,7 +39,7 @@ double tmax, We, Ohd, Ohs, Ec, De, Bo, Ldomain;
 #define tsnap (1e-2)
 #define tlog (1e-4)
 
-scalar Gpd[], lambdav[]; // VE part
+scalar Gpd[]; // VE part
 
 int main(int argc, char const *argv[]) {
 
@@ -57,9 +58,9 @@ int main(int argc, char const *argv[]) {
   
   Ldomain = 4.0; // size of domain. must keep Ldomain \gg 1
 
-  Ec = atof(argv[2]); De = atof(argv[3]); // VE part
+  Ec = atof(argv[2]); // VE part
   
-  fprintf(ferr, "Level %d tmax %g. We %g, Ohd %3.2e, Ohs %3.2e, Ec %g, De %g, Lo %g\n", MAXlevel, tmax, We, Ohd, Ohs, Ec, De, Ldomain);
+  fprintf(ferr, "Level %d tmax %g. We %g, Ohd %3.2e, Ohs %3.2e, Ec %g, De infty, Lo %g\n", MAXlevel, tmax, We, Ohd, Ohs, Ec, Ldomain);
 
   L0=Ldomain;
   X0=0.; Y0=0.;
@@ -75,7 +76,6 @@ int main(int argc, char const *argv[]) {
 
   // polymers
   Gp = Gpd; // VE part
-  lambda = lambdav; // VE part
 
   run();
 }
@@ -83,7 +83,6 @@ int main(int argc, char const *argv[]) {
  event properties (i++) { // VE part
    foreach (){
      Gpd[] = (f[] < 1e-6) ? 0.0: Ec/We; //clamp(f[],0.,1.)*Ec; //(f[] > 1.-1e-6) ? Ec: 0.0;
-     lambdav[] =  (f[] < 1e-6) ? 0.0: sqrt(We)*De; //clamp(f[],0.,1.)*De; //(f[] > 1.-1e-6) ? De: 0.0;
    }
  }
 
@@ -139,7 +138,7 @@ event logWriting (t = 0, t += tlog; t <= tmax) {
     if (i == 0) {
       fprintf (ferr, "i dt t ke Vcm\n");
       fp = fopen ("log", "w");
-      fprintf(fp, "Level %d tmax %g. We %g, Ohd %3.2e, Ohs %3.2e, Ec %g, De %g, Lo %g\n", MAXlevel, tmax, We, Ohd, Ohs, Ec, De, Ldomain);
+      fprintf(fp, "Level %d tmax %g. We %g, Ohd %3.2e, Ohs %3.2e, Ec %g, De infty, Lo %g\n", MAXlevel, tmax, We, Ohd, Ohs, Ec, Ldomain);
       fprintf (fp, "i dt t ke Vcm\n");
       fprintf (fp, "%d %g %g %g %g\n", i, dt, t, ke, Vcm);
       fclose(fp);
