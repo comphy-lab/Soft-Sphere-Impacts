@@ -44,6 +44,6 @@ plt.savefig('force_vcm.pdf', bbox_inches='tight')
 
 #Get and write max force and We
 f_1 = max(force)
-f = open("../force_max_ Vcm.dat", "a")
+f = open("../force_max_Vcm.dat", "a")
 f.write(str(We)+" "+str(f_1)+ '\n')
 f.close()
