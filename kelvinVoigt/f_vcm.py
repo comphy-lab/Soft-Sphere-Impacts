@@ -5,7 +5,7 @@ import sys
 
 
 We = int(sys.argv[1]) #take in We as argument
-
+Ec = sys.argv[2] #take in Ec as an arument
 #import the data log file
 filename = "log"
 df = pd.read_csv(filename, delimiter=' ', skiprows=1)
@@ -52,5 +52,5 @@ plt.savefig('force_vcm.pdf', bbox_inches='tight')
 #Get and write max force and We
 f_1 = max(force_sma)
 f = open("../force_max_Vcm.dat", "a")
-f.write(str(We)+" "+str(f_1)+ '\n')
+f.write(str(We)+" "+str(f_1)+" "+ str(Ec)+'\n')
 f.close()
