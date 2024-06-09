@@ -36,7 +36,7 @@ int MAXlevel;
 double tmax, We, Ohd, Ohs, Ec, De, Bo, Ldomain;
 #define MINlevel 2                                            // maximum level
 #define tsnap (1e-2)
-#define tlog (1e-4)
+#define tlog (5e-4)
 
 scalar Gpd[], lambdav[]; // VE part
 
