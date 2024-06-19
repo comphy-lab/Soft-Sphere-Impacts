@@ -5,3 +5,5 @@
  python3 getBetaMax.py $We
  python3 plot_force.py $We
  python3 f_vcm.py $We
+ qcc -Wall -O2 -disable-dimensions getRfoot.c -o getRfoot -lm
+ python3 getRfoot.py
