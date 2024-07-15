@@ -47,7 +47,7 @@ int main(int argc, char const *argv[]) {
   //   return 1;
   // }
 
-  MAXlevel = 10;
+  MAXlevel = 11;
   //We = 20.0; // We is 1 for 0.22 m/s <1250*0.22^2*0.001/0.06>
   We = atof(argv[1]);
   tmax = 1.0;
