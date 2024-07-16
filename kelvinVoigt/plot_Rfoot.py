@@ -6,6 +6,7 @@ import sys
 
 We = float(sys.argv[1])
 Ec = float(sys.argv[2])
+El = Ec/We
 
 #import the data log file
 filename = "log"
@@ -43,11 +44,22 @@ print("tmax = ", tmax)
 filename = "Rfoot.dat"
 df = pd.read_csv(filename, delimiter=' ') #read file
 
-df = df[df['t'] < 0.75*tmax]
+if El < 0.5:
+   df = df[df['t'] < 0.75*tmax]
+   x = np.arange(0.01,0.75*tmax,0.001)
+   print("Hertz")
+elif El > 10:
+    df = df[df['t'] < 0.25*tmax]
+    x = np.arange(0.01,0.25*tmax,0.001)
+    print("Elastic")
+else:
+    df = df[df['t'] < 0.5*tmax]
+    x = np.arange(0.01,0.5*tmax,0.001)
+
+
 t = df['t'].iloc[1:]
 Rfoot = df['Rfoot'].iloc[1:]
 #Fit the curve
-x = np.arange(0.01,0.75*tmax,0.001)
 
 #calculate best fit - F1 vs We
 from scipy.optimize import curve_fit
