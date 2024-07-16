@@ -47,8 +47,8 @@ df = pd.read_csv(filename, delimiter=' ') #read file
 if El < 0.5:
    df = df[df['t'] < 0.75*tmax]
    x = np.arange(0.01,0.75*tmax,0.001)
-   print("Hertz")
-elif El > 10:
+   print("Wagner")
+elif El >= 2:
     df = df[df['t'] < 0.25*tmax]
     x = np.arange(0.01,0.25*tmax,0.001)
     print("Elastic")
