@@ -43,20 +43,20 @@ print("tmax = ", tmax)
 filename = "Rfoot.dat"
 df = pd.read_csv(filename, delimiter=' ') #read file
 
-df = df[df['t'] < 0.75*tmax] #initial times only
-t = df['t']
-Rfoot = df['Rfoot']
-
+df = df[df['t'] < 0.75*tmax]
+t = df['t'].iloc[1:]
+Rfoot = df['Rfoot'].iloc[1:]
 #Fit the curve
-x = np.arange(0,0.75*tmax,0.01)
+x = np.arange(0.01,0.75*tmax,0.001)
 
 #calculate best fit - F1 vs We
 from scipy.optimize import curve_fit
 #objective function
 def func(t, a):
- return np.sqrt(a*t)
+ return np.sqrt(a*(t-0.01))
 
 popt, pcov = curve_fit(func, t, Rfoot)
+print(popt, pcov)
 a = popt[0]
 Rfoot_fit = func(x,*popt)
 
