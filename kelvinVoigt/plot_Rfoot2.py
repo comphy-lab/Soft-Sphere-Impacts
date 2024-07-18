@@ -1,8 +1,21 @@
 #import libraries
-import pandas as pd 
-import numpy as np 
-import matplotlib.pyplot as plt 
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
 import sys
+FigureWidth = 3.375
+factor = 2
+# Set global parameters
+params = {
+          'lines.linewidth': 3,
+          'axes.labelsize': int(11*factor),
+          'legend.fontsize': int(7*factor),
+          'xtick.labelsize': int(10*factor),
+          'ytick.labelsize': int(10*factor),
+          'text.usetex': True,
+          'font.family': 'serif'}
+plt.rcParams.update(params)
+plt.rcParams['text.latex.preamble'] = r"\usepackage{amsmath}"
 
 We = float(sys.argv[1])
 Ec = float(sys.argv[2])
@@ -48,7 +61,7 @@ if El < 0.5:
    df = df[df['t'] < 0.75*tmax]
    x = np.arange(0.01,0.75*tmax,0.001)
    print("Wagner")
-elif (El >= 1) and (tmax>0.16):
+elif ((El >= 1)or (We<=5)) and (tmax>0.16):
     df = df[df['t'] < 0.25*tmax]
     x = np.arange(0.01,0.25*tmax,0.001)
     print("Elastic")
@@ -56,51 +69,46 @@ else:
     df = df[df['t'] < 0.5*tmax]
     x = np.arange(0.01,0.5*tmax,0.001)
 
-
-t = df['t'].iloc[1:]
-Rfoot = df['Rfoot'].iloc[1:]
+t = df['t']
+Rfoot = df['Rfoot']
 #Fit the curve
 
 #calculate best fit - F1 vs We
 from scipy.optimize import curve_fit
 #objective function
-def func(t, a):
- return np.sqrt(a*(t-0.01))
+def func(t, a, b):
+    return np.sqrt(a*np.maximum((t-b),0))
 
-popt, pcov = curve_fit(func, t, Rfoot)
+popt, pcov = curve_fit(func, t, Rfoot, p0=[0,0])
 print(popt, pcov)
 a = popt[0]
+b = popt[1]
 Rfoot_fit = func(x,*popt)
 
 #PLOT
 plt.rcParams["figure.figsize"] = [6,6]
 plt.rcParams['figure.autolayout'] = True
-plt.rcParams['axes.linewidth'] = 1
-plt.rc('xtick',labelsize=18)
-plt.rc('ytick',labelsize=18)
-#
 plt.xscale("linear")
 plt.yscale("linear")
+plt.xlim(0, x[-1])
+#plt.ylim(0,1)
+
 #
-h1, = plt.plot(t,Rfoot, 'bo', label = "Simulation data")
-#plt.plot(t,Rfoot, 'k--')
-#plt.plot(x,y, 'k-')
-h2, = plt.plot(x, Rfoot_fit, 'r-', label = '$\sqrt{aVR_0t}$')
+h1, = plt.plot(t-b,Rfoot, 'bo', label = "Simulation data")
+h2, = plt.plot(x-b, Rfoot_fit, 'r-', label = r'$\sqrt{aV_0R_0(t-t_0)}$')
+
 
 #plt.title("Drop spread with time", fontsize = 20)
-plt.xlabel("$t/t_c$", fontsize = 20)
+plt.xlabel(r"$(t-t_0)/t_c$", fontsize = 20)
 plt.ylabel("$R_{foot}$", fontsize = 20)
 first_legend = plt.legend(handles=[h1, h2], loc='best', fontsize = 14)
 
 #plt.savefig('Rfootvstime.png')
-plt.savefig('Rfootvstime.jpg')
-plt.savefig('Rfootvstime.pdf')
-
-#plt.show()
-
+plt.savefig('Rfootvstime.jpg', bbox_inches='tight')
+plt.savefig('Rfootvstime.pdf', bbox_inches='tight')
 #
-#Get and write max force and We
-f = open("../Rfoot_coeff.dat", "a")
-#f.write(str(We)+" "+str(a)+ '\n')
-f.write(str(We)+" "+str(a)+" "+str(Ec)+'\n')
+#Get and write coeffs a and b(t_0) and We
+f = open("../Rfoot_coeff_2.dat", "a")
+#f.write(str(We)+" "+str(a)+" "+str(b)+'\n')
+f.write(str(We)+" "+str(a)+" "+str(b)+" " + str(Ec)+'\n')
 f.close()
