@@ -127,6 +127,7 @@ event adapt(i++) {
 
 // Event to write output files at regular intervals
 event writingFiles(t = 0, t += tsnap; t <= tmax) {
+  p.nodump = false; // dump pressure to calculate force in post-processing
   dump(file = "dump");
   char nameOut[80];
   sprintf(nameOut, "intermediate/snapshot-%5.4f", t);
@@ -136,7 +137,7 @@ event writingFiles(t = 0, t += tsnap; t <= tmax) {
 // Event to log simulation data
 event logWriting (t = 0, t += tlog; t <= tmax) {
   double ke = 0., Vcm = 0., vol = 0.;
-  foreach (reduction(+:ke), reduction(+:Vcm), reduction(+:vol) ){
+  foreach (reduction(+:ke), reduction(+:Vcm),reduction(+:vol) ){ 
     ke += 2 * pi * y * (0.5 * rho(f[]) * (sq(u.x[]) + sq(u.y[]))) * sq(Delta);
     Vcm += 2 * pi * y * ((f[]) * (u.x[])) * sq(Delta);
     vol += 2 * pi * y * (f[]) * sq(Delta);
