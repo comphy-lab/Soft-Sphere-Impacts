@@ -4,7 +4,7 @@ Read `README.md` for the case inputs and build commands.
 
 ## Repository rules
 
-- Keep Basilisk headers in `src-local/`, the three standalone impact drivers
+- Keep Basilisk headers in `src-local/`, the four standalone impact drivers
   in `simulationCases/` and snapshot analysis in `postProcess/`.
 - Preserve each driver's positional arguments, boundary conditions, event
   order and restart format when moving code. The direct `El Wi` build uses

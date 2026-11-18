@@ -2,7 +2,7 @@
 set -euo pipefail
 
 case "${1:-}" in
-    bounce|bounce-ve|bounce-kv)
+    bounce|bounce-ve|bounce-kv|bounce-bingham)
         executable=$1
         source_name=$1.c
         flags=()
@@ -13,7 +13,7 @@ case "${1:-}" in
         flags=(-DBOUNCE_VE_EL_WI)
         ;;
     *)
-        echo "Usage: $0 {bounce We | bounce-ve We Ec De | bounce-ve-wi We El Wi | bounce-kv We Ec}" >&2
+        echo "Usage: $0 {bounce We | bounce-ve We Ec De | bounce-ve-wi We El Wi | bounce-kv We Ec | bounce-bingham We Ec De J}" >&2
         exit 2
         ;;
 esac

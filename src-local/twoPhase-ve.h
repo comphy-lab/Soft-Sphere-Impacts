@@ -20,6 +20,9 @@ Kelvin–Voigt limit, with a unit relaxation factor.
 #ifndef INFINITE_RELAXATION
 (const) scalar lambda = unity;
 #endif
+#ifndef RELAXATION_RATE_FACTOR
+# define RELAXATION_RATE_FACTOR(point) (1.)
+#endif
 
 #include "bcg.h"
 
@@ -315,10 +318,16 @@ event tracer_advection(i++)
       $$
       */
 
+  /**
+  `RELAXATION_RATE_FACTOR(point)` scales the relaxation rate $1/\lambda$.
+  It is 1 for Oldroyd-B; [twoPhase-VP.h](twoPhase-VP.h) replaces it with
+  the Saramito yield factor. It reads the stress from the previous step. */
+
 #ifdef INFINITE_RELAXATION
      double intFactor = 1.;
 #else
-     double intFactor = lambda[] != 0. ? exp(-dt/lambda[]): 0.;
+     double intFactor = lambda[] != 0. ?
+       exp(-dt*RELAXATION_RATE_FACTOR(point)/lambda[]): 0.;
 #endif
      
 #if AXI

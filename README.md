@@ -2,18 +2,21 @@
 
 ## Problem
 
-An axisymmetric sphere impacts a solid wall. The three drivers describe a
-Newtonian drop, a viscoelastic drop with finite relaxation time and a
-Kelvin–Voigt sphere in the infinite-relaxation limit.
+An axisymmetric sphere impacts a solid wall. The four drivers describe a
+Newtonian drop, a viscoelastic drop with finite relaxation time, a
+Kelvin–Voigt sphere in the infinite-relaxation limit and a Bingham
+(Saramito) elasto-viscoplastic sphere.
 
 ## Layout
 
 ```
 src-local/twoPhase.h - filtered two-phase flow and momentum-conserving advection
 src-local/twoPhase-ve.h - log-conformation update and stress coupling
+src-local/twoPhase-VP.h - Saramito yield factor for the Bingham sphere
 simulationCases/bounce.c - Newtonian drop
 simulationCases/bounce-ve.c - finite-relaxation viscoelastic drop
 simulationCases/bounce-kv.c - Kelvin–Voigt sphere
+simulationCases/bounce-bingham.c - Bingham elasto-viscoplastic sphere
 simulationCases/runSimulation.sh - compile and run a driver
 postProcess/ - snapshot extraction, force, footprint and video tools
 Force-data-scalings-elastic/ - existing force-scaling notebook and its input data
@@ -24,7 +27,7 @@ Force-data-scalings-elastic/ - existing force-scaling notebook and its input dat
 The drivers use Basilisk's centred Navier–Stokes solver on an adaptive
 axisymmetric grid. The volume fraction tracks the interface. Mesh adaptation
 uses volume fraction, velocity and curvature, with conformation components
-added for the viscoelastic and Kelvin–Voigt cases. Each driver can restore
+added for the viscoelastic, Kelvin–Voigt and Bingham cases. Each driver can restore
 from `dump` in its working directory.
 
 Reproducing a published figure requires rerunning the simulations with the
@@ -50,6 +53,7 @@ absolute path. It passes the positional arguments directly to the driver.
 /path/to/Soft-Sphere-Impacts/simulationCases/runSimulation.sh bounce-ve 20 0.1 1.0
 /path/to/Soft-Sphere-Impacts/simulationCases/runSimulation.sh bounce-kv 20 0.1
 /path/to/Soft-Sphere-Impacts/simulationCases/runSimulation.sh bounce-ve-wi 100 0.1 0.1
+/path/to/Soft-Sphere-Impacts/simulationCases/runSimulation.sh bounce-bingham 100 4000 0.001 100
 ```
 
 The drivers take `We` (Weber number), followed by `Ec` (elastocapillary
@@ -57,7 +61,17 @@ number) for Kelvin–Voigt or `Ec De` (Deborah number last) for finite relaxatio
 Both viscoelastic drivers use `Ec/We` for the modulus. The finite-relaxation
 driver uses `sqrt(We)*De` for the relaxation time in solver units. The `bounce-ve-wi` runner builds the same finite-relaxation
 source with `BOUNCE_VE_EL_WI` and takes the dimensionless modulus
-`El = G/(rho*V^2)` and relaxation time `Wi = lambda*V/R` directly. The runner defaults to a serial build. Set `OPENMP=1` with a
+`El = G/(rho*V^2)` and relaxation time `Wi = lambda*V/R` directly.
+
+The Bingham driver takes `We Ec De J`. The plasticity number
+`J = tau_y*R/gamma` sets the yield stress `J/We`; the modulus and relaxation
+time follow the finite-relaxation driver. Below yield the sphere is a
+Kelvin–Voigt solid. Above yield the Saramito model relaxes its stress, and
+`J = 0` recovers the Oldroyd-B equations of the finite-relaxation driver.
+Like the Kelvin–Voigt driver, it uses maximum level 10. `pforce.sh` has no
+Bingham case; compute the force from `Vcm` in `log`.
+
+The runner defaults to a serial build. Set `OPENMP=1` with a
 compiler that supports `-fopenmp` to use the eight threads of the earlier
 launchers. Override the count with `OMP_NUM_THREADS`.
 
