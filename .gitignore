@@ -1,7 +1,9 @@
+# OS specific files
 **/.DS_Store
-intermediate*
-dump*
-*qcc*
+**/Thumbs.db
+**/.Spotlight-V100
+**/.Trashes
+
 # Prerequisites
 *.d
 
@@ -54,3 +56,92 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# debug information files
+*.dwo
+
+# No _darcs
+**/_darcs
+**/.project_config
+
+# Basilisk installation (local only)
+basilisk/
+**/.comphy-basilisk
+.docker_mode
+
+# Documentation builder environment (local only)
+.venv/
+
+# Case folders (4-digit case numbers: 1000-9999)
+simulationCases/[0-9][0-9][0-9][0-9]/
+**/docs/simulationCases/[0-9][0-9][0-9][0-9]/
+
+# bview file
+**/display.html
+
+# SLURM output files
+*.err
+slurm-*.out
+slurm-*.err
+
+# Temporary sweep directories
+.sweep_tmp_*
+
+# Run lists, data-root maps, run output and receipts are never committed
+runs.toml
+data-roots.toml
+runs/
+receipts/
+
+# postProcessing specific
+**/getData*
+**/getFacet*
+**/getFootPrint
+**/Video
+
+# always add .c and .h
+!*.c
+!*.h
+!*.sh
+!*.sbatch
+
+# Local install scripts (do not commit)
+reset_install_*.sh
+
+# Documentation generation artifacts
+**/__pycache__/
+**/*.pyc
+
+# Timestamped CSS backups
+**/custom_styles_backup_*.css
+
+# Local CLAUDE.md (references AGENTS.md)
+CLAUDE.md
+
+# Impact runs and local build products
+intermediate*/
+dump*
+log
+*qcc*
+.build.*/
+.extract-*/
+bounce
+bounce-ve
+bounce-ve-wi
+bounce-kv
+bounceVE
+bounceVE_WeissenbergSweep
+bounceElastic
+getBetaMax
+getRfoot
+Video_v1/
+vid_*.mp4
+elastic_We*.mp4
+*_We_pforce.dat
+*_El_pforce.dat
+Rfoot.dat
+Rfoot_coeff*.dat
+force_max*.dat
+pforce.png
+force_vcm.*
+Rfootvstime.*
