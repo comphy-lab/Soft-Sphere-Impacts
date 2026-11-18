@@ -1,33 +1,42 @@
 /**
- * @file bounce-kv.c
- * @author Vatsal Sanjay (vatsalsanjay@gmail.com)
- * vatsalsanjay.com
- * Physics of Fluids
- * @date 2023-05-30
- * This code is for infinite Deborah numbers!
- *
+# Kelvin–Voigt sphere impact
+
+Simulates an axisymmetric sphere impacting a rigid, non-wetting wall through
+air. Viscous stresses and an elastic stress evolved without relaxation
+give the Kelvin–Voigt limit of the two-phase viscoelastic model.
+
+Run `bounce-kv We Ec` with the Weber number `We = rho V^2 R/sigma`
+and the elastocapillary number `Ec = G R/sigma`. The solver uses `R`, `V`
+and `rho` of the sphere as units. The sphere Ohnesorge number is fixed at
+`0.01`, and the output time horizon is `t V/R = 1`.
+
+- `dump` is the latest checkpoint and is restored when present on launch.
+- `intermediate/snapshot-*` stores time-stamped states, including pressure.
+- `log` records iteration, time step, time, total two-phase kinetic energy
+  and the sphere's axial centre-of-mass velocity. Its time derivative
+  gives the force after multiplication by the sphere mass.
+
+Original driver by Vatsal Sanjay, 30 May 2023.
 */
 
-// 1 is drop
 #include "axi.h"
 #include "navier-stokes/centered.h"
 #define INFINITE_RELAXATION
 #include "twoPhase-ve.h"
 #include "tension.h"
 
-// error tolerances
+// Wavelet tolerances for interface, velocity, curvature and conformation.
 #define fErr (1e-3)
 #define VelErr (1e-3)
 #define KErr (1e-3)
 #define AErr (1e-3)
 
-// air-water
+// Ambient-to-sphere density ratio and initial sphere centre.
 #define Rho21 (1e-3)
-// Calculations!
 #define Xdist (1.02)
 #define R2Drop(x,y) (sq(x - Xdist) + sq(y))
 
-// boundary conditions
+// The left wall is no-slip. Zero wall volume fraction maintains an air film.
 u.t[left] = dirichlet(0.0);
 f[left] = dirichlet(0.0);
 
@@ -36,7 +45,7 @@ double tmax, We, Ohd, Ohs, Ec, De, Bo, Ldomain;
 #define tsnap (1e-2)
 #define tlog (5e-4)
 
-scalar Gpd[]; // VE part
+scalar Gpd[];
 
 int main(int argc, char const *argv[]) {
 
@@ -49,12 +58,12 @@ int main(int argc, char const *argv[]) {
   We = atof(argv[1]);
   tmax = 1.0;
 
-  Ohd = 1e-2; // <\mu/sqrt(1250*0.060*0.001)>
-  Ohs = 1e-4; //\mu_r * Ohd
+  Ohd = 1e-2;
+  Ohs = 1e-4; // Uses the sphere's density and surface tension in the scaling.
 
-  Ldomain = 4.0; // size of domain. must keep Ldomain \gg 1
+  Ldomain = 4.0;
 
-  Ec = atof(argv[2]); // VE part
+  Ec = atof(argv[2]);
 
   fprintf(ferr, "Level %d tmax %g. We %g, Ohd %3.2e, Ohs %3.2e, Ec %g, De infty, Lo %g\n", MAXlevel, tmax, We, Ohd, Ohs, Ec, Ldomain);
 
@@ -70,22 +79,23 @@ int main(int argc, char const *argv[]) {
   rho2 = Rho21; mu2 = Ohs/sqrt(We);
   f.sigma = 1.0/We;
 
-  // polymers
-  Gp = Gpd; // VE part
+  Gp = Gpd;
 
   run();
 }
 
- event properties (i++) { // VE part
+ // Apply the modulus in sphere and interfacial cells, excluding ambient gas.
+ event properties (i++) {
    foreach (){
-     Gpd[] = (f[] < 1e-6) ? 0.0: Ec/We; //clamp(f[],0.,1.)*Ec; //(f[] > 1.-1e-6) ? Ec: 0.0;
+     Gpd[] = (f[] < 1e-6) ? 0.0: Ec/We;
    }
  }
 
 event init(t = 0){
   if(!restore (file = "dump")){
+    // Resolve the initially spherical interface before assigning its velocity.
     refine((R2Drop(x,y) < 1.05) && (level < MAXlevel));
-    fraction (f, 1. - R2Drop(x,y)); //initialise a drop with radius 1
+    fraction (f, 1. - R2Drop(x,y));
     foreach () {
       u.x[] = -1.0*f[];
       u.y[] = 0.0;
@@ -96,16 +106,15 @@ event init(t = 0){
 scalar KAPPA[];
 event adapt(i++) {
   curvature(f, KAPPA);
+   // Include the azimuthal conformation so hoop stresses remain resolved.
    adapt_wavelet ((scalar *){f, u.x, u.y, KAPPA, conform_p.x.x, conform_p.x.y, conform_p.y.y, conform_qq},
      (double[]){fErr, VelErr, VelErr, KErr, AErr, AErr, AErr, AErr},
-     MAXlevel, MAXlevel-4); // VE part
+     MAXlevel, MAXlevel-4);
 
 }
 
-// Outputs
-// static
 event writingFiles (t = 0, t += tsnap; t <= tmax) {
-   p.nodump = false; // dump pressure to calculate force in post-processing
+   p.nodump = false; // Retain wall pressure for post-processing.
   dump (file = "dump");
   char nameOut[80];
   sprintf (nameOut, "intermediate/snapshot-%5.4f", t);
@@ -114,6 +123,7 @@ event writingFiles (t = 0, t += tsnap; t <= tmax) {
 
 event logWriting (t = 0, t += tlog; t <= tmax) {
   double ke = 0., Vcm = 0., vol = 0.;
+  // Integrate with the ring volume 2*pi*y*Delta^2 over the meridional grid.
   foreach (reduction(+:ke) reduction(+:Vcm) reduction(+:vol)) {
     ke += 2*pi*y*(0.5*rho(f[])*(sq(u.x[]) + sq(u.y[])))*sq(Delta);
     Vcm += 2*pi*y*((f[])*(u.x[]))*sq(Delta);

@@ -2,18 +2,20 @@
 
 ## Problem
 
-An axisymmetric sphere impacts a solid wall. The three drivers describe a
-Newtonian drop, a viscoelastic drop with finite relaxation time and a
-Kelvin–Voigt sphere in the infinite-relaxation limit.
+An axisymmetric sphere impacts a solid wall. The drivers describe a Newtonian
+drop, a viscoelastic drop with finite relaxation time, a Kelvin–Voigt sphere
+in the infinite-relaxation limit and a regularised Bingham drop.
 
 ## Layout
 
 ```
 src-local/twoPhase.h - filtered two-phase flow and momentum-conserving advection
 src-local/twoPhase-ve.h - log-conformation update and stress coupling
+src-local/twoPhase-VP.h - two-phase flow with regularised Bingham viscosity
 simulationCases/bounce.c - Newtonian drop
 simulationCases/bounce-ve.c - finite-relaxation viscoelastic drop
 simulationCases/bounce-kv.c - Kelvin–Voigt sphere
+simulationCases/bounce-bingham.c - Bingham drop
 simulationCases/runSimulation.sh - compile and run a driver
 postProcess/ - snapshot extraction, force, footprint and video tools
 Force-data-scalings-elastic/ - existing force-scaling notebook and its input data
@@ -50,6 +52,7 @@ absolute path. It passes the positional arguments directly to the driver.
 /path/to/Soft-Sphere-Impacts/simulationCases/runSimulation.sh bounce-ve 20 0.1 1.0
 /path/to/Soft-Sphere-Impacts/simulationCases/runSimulation.sh bounce-kv 20 0.1
 /path/to/Soft-Sphere-Impacts/simulationCases/runSimulation.sh bounce-ve-wi 100 0.1 0.1
+/path/to/Soft-Sphere-Impacts/simulationCases/runSimulation.sh bounce-bingham 100 0.1
 ```
 
 The drivers take `We` (Weber number), followed by `Ec` (elastocapillary
@@ -60,6 +63,10 @@ source with `BOUNCE_VE_EL_WI` and takes the dimensionless modulus
 `El = G/(rho*V^2)` and relaxation time `Wi = lambda*V/R` directly. The runner defaults to a serial build. Set `OPENMP=1` with a
 compiler that supports `-fopenmp` to use the eight threads of the earlier
 launchers. Override the count with `OMP_NUM_THREADS`.
+
+The Bingham driver takes `We J`, with `J = tau_y/(rho*V^2)` and plastic
+`Oh = 0.01`. It applies Papanastasiou regularisation with `m = 100` in units
+of `R/V`.
 
 Run the post-processing scripts from the simulation output directory. They
 read `intermediate/` and `log`. Force extraction replaces the per-run
@@ -73,5 +80,7 @@ SciPy. Video generation also uses LaTeX and FFmpeg.
 ```
 
 For force extraction, `bounce-ve` takes `We`, `bounce-kv` takes `We Ec`,
-and `bounce-ve-wi` takes `We El`. A final video argument sets the output
-filename, for example `elastic_We20.mp4` for the Kelvin–Voigt case.
+and `bounce-ve-wi` takes `We El`. For Bingham runs, compute force from the
+centre-of-mass velocity in `log`, which is the last column. `pforce.sh`
+supports the Newtonian and viscoelastic cases. A final video argument sets
+the output filename, for example `elastic_We20.mp4` for the Kelvin–Voigt case.

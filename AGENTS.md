@@ -4,11 +4,12 @@ Read `README.md` for the case inputs and build commands.
 
 ## Repository rules
 
-- Keep Basilisk headers in `src-local/`, the three standalone impact drivers
+- Keep Basilisk headers in `src-local/`, the standalone impact drivers
   in `simulationCases/` and snapshot analysis in `postProcess/`.
 - Preserve each driver's positional arguments, boundary conditions, event
   order and restart format when moving code. The direct `El Wi` build uses
   `bounce-ve.c`. The Kelvin–Voigt build uses the infinite-relaxation limit.
+  The Bingham driver takes `We J`, with `J` scaled by the inertial stress.
 - Build against the project-local Basilisk release pinned in `basilisk.ref`.
   Keep the installation, build artefacts and executables out of Git.
 - Write runs and analysis outputs outside the repository. Keep generated
