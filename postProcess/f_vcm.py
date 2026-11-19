@@ -8,6 +8,8 @@ from snapshot_tables import force_summary_path, weber_label
 
 We = weber_label(sys.argv[1])
 case = sys.argv[2] if len(sys.argv) > 2 else "bounce"
+# Optional material parameter, such as J for bounce-bingham, written as a third column.
+param = sys.argv[3] if len(sys.argv) > 3 else None
 
 #import the data log file
 filename = "log"
@@ -55,5 +57,5 @@ plt.savefig('force_vcm.pdf', bbox_inches='tight')
 #Get and write max force and We
 f_1 = max(force_sma)
 f = force_summary_path("force_max_Vcm", case).open("a")
-f.write(str(We)+" "+str(f_1)+ '\n')
+f.write(str(We)+" "+str(f_1)+ (" "+param if param is not None else "") + '\n')
 f.close()

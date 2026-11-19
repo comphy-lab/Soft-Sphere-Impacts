@@ -3,11 +3,11 @@ set -euo pipefail
 
 case "${1:-}" in
     bounce|bounce-ve) expected=2 ;;
-    bounce-kv|bounce-ve-wi) expected=3 ;;
+    bounce-kv|bounce-ve-wi|bounce-bingham) expected=3 ;;
     *) expected=0 ;;
 esac
 if [[ $expected == 0 || $# -ne $expected ]]; then
-    echo "Usage: $0 {bounce We | bounce-ve We | bounce-ve-wi We El | bounce-kv We Ec}" >&2
+    echo "Usage: $0 {bounce We | bounce-ve We | bounce-ve-wi We El | bounce-kv We Ec | bounce-bingham We J}" >&2
     exit 2
 fi
 
@@ -21,6 +21,11 @@ case "$1" in
         python3 "$source_dir/getBetaMax.py" "$2"
         python3 "$source_dir/plot_force.py" "$2" "$1"
         python3 "$source_dir/f_vcm.py" "$2" "$1"
+        ;;
+    bounce-bingham)
+        python3 "$source_dir/getBetaMax.py" "$2"
+        python3 "$source_dir/plot_force.py" "$2" "$1" "$3"
+        python3 "$source_dir/f_vcm.py" "$2" "$1" "$3"
         ;;
     bounce-kv)
         python3 "$source_dir/getBetaMax.py" "$2"

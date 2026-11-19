@@ -14,7 +14,7 @@ def weber_label(value):
 
 
 def force_summary_path(stem, case="bounce"):
-    if case not in {"bounce", "bounce-ve", "bounce-ve-wi", "bounce-kv"}:
+    if case not in {"bounce", "bounce-ve", "bounce-ve-wi", "bounce-kv", "bounce-bingham"}:
         raise ValueError(f"Unknown case {case!r}")
     return Path("..") / f"{stem}_{case}.dat"
 
